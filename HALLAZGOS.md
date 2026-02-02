@@ -135,9 +135,11 @@ F_{local} &= \text{clip}\left( \frac{1.0 \cdot 0.15 \cdot 0.4 + 2.0 \cdot 0.15 \
 $$
 
 **Nota Base ($N_{raw}$):**
+
 $$ N_{raw} = 1.0 + (2.90 - 1.0) \cdot 0.95 = 1.0 + 1.90 \cdot 0.95 = 1.0 + 1.805 = 2.805 $$
 
 **Nota Final Definitive ($N_{final}$):**
+
 $$ N_{final} = \min(2.805, 2.90) = 2.805 $$
 
 Todo es muy prometedor, pero ¿en realidad reduce esto los falsos positivos y falsos negativos?
