@@ -109,9 +109,11 @@ Se aplican reglas de seguridad para no perjudicar injustamente ni regalar nota:
 Tomemos un nuevo ejemplo en el que las notas son $X_1=1.0, X_2=2.0, X_3=3.5$ y los pesos son $W_1=0.15, W_2=0.15, W_3=0.70$. Los umbrales son $t_1=2.5, t_2=2.5, t_3=2.5$. En este caso, la nota final sería:
 
 **Promedio Clásico ($A$):**
+
 $$ A = 1.0 \cdot 0.15 + 2.0 \cdot 0.15 + 3.5 \cdot 0.70 = 2.90 $$
 
 **Promedio con umbrales ($N_{local}$):**
+
 $$
 \begin{aligned}
 N_{local} &= 1.0 \cdot 0.15 \cdot \min\left(1, \frac{1.0}{2.5}\right) + 2.0 \cdot 0.15 \cdot \min\left(1, \frac{2.0}{2.5}\right) + 3.5 \cdot 0.70 \cdot \min\left(1, \frac{3.5}{2.5}\right) \\
