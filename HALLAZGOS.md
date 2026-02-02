@@ -84,60 +84,61 @@ Uno de los inconvenientes de este modelo es que puede ser muy penalizante para l
 
 Para corregir estas distorsiones, se propone un modelo más robusto que utiliza los siguientes componentes:
 
-1.  **Factor de Proximidad ($G_{ij}$)**:
-    Mide qué tan cerca está una nota $X_j$ de su umbral $U_j$. Si $X_j < U_j$, el factor reduce la contribución de otros ítems.
+**Factor de Proximidad ($G_{ij}$)**:
+Mide qué tan cerca está una nota $X_j$ de su umbral $U_j$. Si $X_j < U_j$, el factor reduce la contribución de otros ítems.
 
-2.  **Factor de Utilidad ($F_{local}$)** o Factor de Penalización:
-    Modela la interdependencia. Si un estudiante falla en temas avanzados, su nota se "castiga".
+**Factor de Utilidad ($F_{local}$)** o Factor de Penalización:
+Modela la interdependencia. Si un estudiante falla en temas avanzados, su nota se "castiga".
 
-    $$ F_{local} = \min \left( 1, \frac{\sum_{i} X_i W_i \prod_{j \neq i} G_{ij}}{A} \right) $$
+$$ F_{local} = \min \left( 1, \frac{\sum_{i} X_i W_i \prod_{j \neq i} G_{ij}}{A} \right) $$
 
-    Donde $G_{ij}$ es un factor de reducción derivado de si la nota $X_j$ cumple o no con su umbral $U_j$.
+Donde $G_{ij}$ es un factor de reducción derivado de si la nota $X_j$ cumple o no con su umbral $U_j$.
 
-3.  **Nota Base ($N_{raw}$)**:
-    Interpolación entre el piso (mínima nota obtenida en items regulares, $m$) y el promedio clásico.
+**Nota Base ($N_{raw}$)**:
+Interpolación entre el piso (mínima nota obtenida en items regulares, $m$) y el promedio clásico.
     
-    $$ 
-    N_{raw} = m + (A - m) \cdot F_{local} 
-    $$
+$$ 
+N_{raw} = m + (A - m) \cdot F_{local} 
+$$
 
-4.  **Nota Final Definitive ($N_{final}$)**:
-    Se aplican reglas de seguridad para no perjudicar injustamente ni regalar nota:
-    *   Si $A < 2.95$ (Reprobado por promedio): $N_{final} = A$ (Se mantiene el promedio).
-    *   Si $A \ge 2.95$ (Aprobado por promedio): $N_{final} = \min(N_{raw}, A)$ (Penalización activa: la nota final nunca puede ser mayor al promedio simple).
+**Nota Final Definitive ($N_{final}$)**:
+Se aplican reglas de seguridad para no perjudicar injustamente ni regalar nota:
+*   Si $A < 2.95$ (Reprobado por promedio): $N_{final} = A$ (Se mantiene el promedio).
+*   Si $A \ge 2.95$ (Aprobado por promedio): $N_{final} = \min(N_{raw}, A)$ (Penalización activa: la nota final nunca puede ser mayor al promedio simple).
 
 Tomemos un nuevo ejemplo en el que las notas son $X_1=1.0, X_2=2.0, X_3=3.5$ y los pesos son $W_1=0.15, W_2=0.15, W_3=0.70$. Los umbrales son $t_1=2.5, t_2=2.5, t_3=2.5$. En este caso, la nota final sería:
 
-1.  **Promedio Clásico ($A$):**
-    $$ A = 1.0 \cdot 0.15 + 2.0 \cdot 0.15 + 3.5 \cdot 0.70 = 2.90 $$
+**Promedio Clásico ($A$):**
+$$ A = 1.0 \cdot 0.15 + 2.0 \cdot 0.15 + 3.5 \cdot 0.70 = 2.90 $$
 
-2. **Promedio con umbrales ($N_{local}$):**
-    $$
-    \begin{aligned}
-    N_{local} &= 1.0 \cdot 0.15 \cdot \min\left(1, \frac{1.0}{2.5}\right) + 2.0 \cdot 0.15 \cdot \min\left(1, \frac{2.0}{2.5}\right) + 3.5 \cdot 0.70 \cdot \min\left(1, \frac{3.5}{2.5}\right) \\
-    &= 1.0 \cdot 0.15 \cdot 0.4 + 2.0 \cdot 0.15 \cdot 0.8 + 3.5 \cdot 0.70 \cdot 1.0 \\
-    &= 0.06 + 0.24 + 2.45 \\
-    &= 2.75
-    \end{aligned}
-    $$
+**Promedio con umbrales ($N_{local}$):**
+$$
+\begin{aligned}
+N_{local} &= 1.0 \cdot 0.15 \cdot \min\left(1, \frac{1.0}{2.5}\right) + 2.0 \cdot 0.15 \cdot \min\left(1, \frac{2.0}{2.5}\right) + 3.5 \cdot 0.70 \cdot \min\left(1, \frac{3.5}{2.5}\right) \\
+&= 1.0 \cdot 0.15 \cdot 0.4 + 2.0 \cdot 0.15 \cdot 0.8 + 3.5 \cdot 0.70 \cdot 1.0 \\
+&= 0.06 + 0.24 + 2.45 \\
+&= 2.75
+\end{aligned}
+$$
 
-    la nota $X_1 =1$ sanciona fuertemente el promedio ponderado.
+la nota $X_1 =1$ sanciona fuertemente el promedio ponderado.
 
-3.  **Factor de Utilidad ($F_{local}$):**
-    $$
-    \begin{aligned}
-    F_{local} &= \text{clip}\left( \frac{1.0 \cdot 0.15 \cdot 0.4 + 2.0 \cdot 0.15 \cdot 0.8 + 3.5 \cdot 0.70 \cdot 1.0}{2.90}, 0, 1 \right) \\
-    &= \text{clip}\left( \frac{0.06 + 0.24 + 2.45}{2.90}, 0, 1 \right) \\
-    &= \text{clip}\left( \frac{2.75}{2.90}, 0, 1 \right) \\
-    &= 0.95
-    \end{aligned}
-    $$
+**Factor de Utilidad ($F_{local}$):**
 
-4.  **Nota Base ($N_{raw}$):**
-    $$ N_{raw} = 1.0 + (2.90 - 1.0) \cdot 0.95 = 1.0 + 1.90 \cdot 0.95 = 1.0 + 1.805 = 2.805 $$
+$$
+\begin{aligned}
+F_{local} &= \text{clip}\left( \frac{1.0 \cdot 0.15 \cdot 0.4 + 2.0 \cdot 0.15 \cdot 0.8 + 3.5 \cdot 0.70 \cdot 1.0}{2.90}, 0, 1 \right) \\
+&= \text{clip}\left( \frac{0.06 + 0.24 + 2.45}{2.90}, 0, 1 \right) \\
+&= \text{clip}\left( \frac{2.75}{2.90}, 0, 1 \right) \\
+&= 0.95
+\end{aligned}
+$$
 
-5.  **Nota Final Definitive ($N_{final}$):**
-    $$ N_{final} = \min(2.805, 2.90) = 2.805 $$
+**Nota Base ($N_{raw}$):**
+$$ N_{raw} = 1.0 + (2.90 - 1.0) \cdot 0.95 = 1.0 + 1.90 \cdot 0.95 = 1.0 + 1.805 = 2.805 $$
+
+**Nota Final Definitive ($N_{final}$):**
+$$ N_{final} = \min(2.805, 2.90) = 2.805 $$
 
 Todo es muy prometedor, pero ¿en realidad reduce esto los falsos positivos y falsos negativos?
 
@@ -224,8 +225,11 @@ FNR (Falsos Reprobados): 73.73%
 Accuracy: 64.70%
 TP: 119 | TN: 528 | FP: 19 | FN: 334
 
-==================== Nota_Umbral_Interpolación ====================
-FPR (Falsos Aprobados): 22.12%
+==================== Nota_Final_Avanzada ====================
+FPR (Falsos Aprobados): 22.85%
+FNR (Falsos Reprobados): 59.60%
+Accuracy: 60.50%
+TP: 183 | TN: 422 | FP: 125 | FN: 270
 ```
 
 Como es de esperarse la nota con umbral, tanto la simple como aquella que usa interpolación, presenta un número menor de falsos positivos, es decir, la probabilidad de ganar el curso a pesar de que un docente experimentado lo repruebe es baja. Sin embargo, la tasa de falsos negativos es alta, lo que indica que la probabilidad de reprobar el curso a pesar de que un docente experimentado lo apruebe es alta. Esto último es grave.
@@ -248,7 +252,7 @@ Hay que seleccionar adecuadamente el minimizador en este caso:
 El item definitorio (ej. Proyecto 3) tiene un límite de peso (ej. $W_{def} \le 0.30$).
 
 *   **Estrategia Ganadora**: Uso de **Penalización** en la función objetivo.
-    $$ \text{Si } W_{def} > W_{max} \rightarrow Costo += (W_{def} - W_{max}) \cdot 100 $$
+$$ \text{Si } W_{def} > W_{max} \rightarrow Costo += (W_{def} - W_{max}) \cdot 100 $$
     Esta aproximación "suave" permitió a Powell explorar cerca de los límites y converger mejor que imponer límites rígidos (`Constraints`).
 
 ### Resultados
