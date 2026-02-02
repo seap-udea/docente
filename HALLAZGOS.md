@@ -255,9 +255,9 @@ Hay que seleccionar adecuadamente el minimizador en este caso:
 
 El item definitorio (ej. Proyecto 3) tiene un límite de peso (ej. $W_{def} \le 0.30$).
 
-*   **Estrategia Ganadora**: Uso de **Penalización** en la función objetivo.
-$$ \text{Si } W_{def} > W_{max} \rightarrow Costo += (W_{def} - W_{max}) \cdot 100 $$
-    Esta aproximación "suave" permitió a Powell explorar cerca de los límites y converger mejor que imponer límites rígidos (`Constraints`).
+*   **Estrategia Ganadora**: Uso de **Penalización** en la función objetivo. $\text{Si } W_{def} > W_{max} \rightarrow Costo += (W_{def} - W_{max}) \cdot 100 $
+    
+Esta aproximación "suave" permitió a Powell explorar cerca de los límites y converger mejor que imponer límites rígidos (`Constraints`).
 
 ### Resultados
 
