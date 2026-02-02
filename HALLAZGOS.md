@@ -89,7 +89,9 @@ Para corregir estas distorsiones, se propone un modelo más robusto que utiliza 
 
 2.  **Factor de Utilidad ($F_{local}$)** o Factor de Penalización:
     Modela la interdependencia. Si un estudiante falla en temas avanzados, su nota se "castiga".
+
     $$ F_{local} = \text{clip}\left( \frac{\sum_{i} (X_i \cdot W_i \cdot \prod_{j \neq i} G_{ij})}{A}, 0, 1 \right) $$
+    
     Donde $G_{ij}$ es un factor de reducción derivado de si la nota $X_j$ cumple o no con su umbral $U_j$.
 
 3.  **Nota Base ($N_{raw}$)**:
